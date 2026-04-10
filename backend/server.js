@@ -28,13 +28,13 @@ const seedDatabase = async () => {
   }
 
   const eventCount = await Event.countDocuments();
+  const collegeUser = await User.findOne({ role: 'college' });
+
+  if (!collegeUser) {
+    throw new Error('College seed user missing');
+  }
+
   if (eventCount === 0) {
-    const collegeUser = await User.findOne({ role: 'college' });
-
-    if (!collegeUser) {
-      throw new Error('College seed user missing');
-    }
-
     const eventsToCreate = seedEvents.map((event) => ({
       ...event,
       createdBy: collegeUser._id,
@@ -42,6 +42,15 @@ const seedDatabase = async () => {
 
     await Event.insertMany(eventsToCreate);
     console.log('✅ Seeded starter events');
+    return;
+  }
+
+  // Keep seeded event images in sync even when records already exist in MongoDB.
+  for (const seedEvent of seedEvents) {
+    await Event.updateOne(
+      { title: seedEvent.title, createdBy: collegeUser._id },
+      { $set: { image: seedEvent.image } }
+    );
   }
 };
 

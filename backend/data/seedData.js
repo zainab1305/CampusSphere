@@ -55,7 +55,7 @@ const seedEvents = [
     category: 'Sports',
     capacity: 1000,
     registered: 756,
-    image: 'https://aquaimagicaa.com/indore/wp-content/uploads/Aqua-Indore.jpg',
+    image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'Artificial Intelligence Expo',
