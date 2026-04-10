@@ -1,7 +1,7 @@
 .event-detail-page {
   padding: 40px 0;
   min-height: calc(100vh - 80px);
-  background-color: #f5f5f5;
+  background-color: var(--bg);
 }
 
 .event-detail-container {
@@ -53,7 +53,7 @@
 
 .event-detail-header h1 {
   font-size: 36px;
-  color: #2c3e50;
+  color: var(--text-900);
   margin-bottom: 15px;
 }
 
@@ -87,7 +87,7 @@
 }
 
 .event-stat {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-800) 100%);
   color: white;
   padding: 20px;
   border-radius: 8px;
@@ -120,7 +120,7 @@
 
 .registration-fill {
   height: 100%;
-  background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(90deg, var(--accent-500) 0%, var(--accent-600) 100%);
   border-radius: 10px;
   transition: width 0.3s ease;
 }
@@ -172,7 +172,7 @@
 
 .not-found-message {
   font-size: 20px;
-  color: #2c3e50;
+  color: var(--text-900);
   margin-bottom: 25px;
 }
 

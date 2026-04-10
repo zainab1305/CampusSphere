@@ -11,7 +11,7 @@
   font-size: 28px;
   font-weight: bold;
   margin-bottom: 30px;
-  color: #2c3e50;
+  color: var(--text-900);
   text-align: center;
 }
 

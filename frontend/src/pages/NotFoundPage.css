@@ -3,7 +3,11 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background:
+    linear-gradient(125deg, rgba(13, 44, 71, 0.86), rgba(23, 69, 109, 0.82)),
+    url('https://www.pcma.org/wp-content/uploads/2018/10/trillion-main.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .not-found-container {
@@ -18,19 +22,19 @@
 .not-found-code {
   font-size: 96px;
   font-weight: bold;
-  color: #667eea;
+  color: var(--brand-700);
   margin-bottom: 10px;
 }
 
 .not-found-title {
   font-size: 32px;
-  color: #2c3e50;
+  color: var(--text-900);
   margin-bottom: 15px;
   font-weight: bold;
 }
 
 .not-found-description {
-  color: #7f8c8d;
+  color: var(--text-600);
   font-size: 16px;
   margin-bottom: 30px;
 }
