@@ -24,7 +24,10 @@ const getOptionalUser = (req) => {
 // Get registered events for current student
 router.get('/registered', authMiddleware, isStudent, async (req, res) => {
   try {
-    const events = await Event.find({ attendees: req.userId }).populate('createdBy', 'email role');
+    const events = await Event.find({
+      attendees: req.userId,
+      $or: [{ status: 'approved' }, { status: { $exists: false } }],
+    }).populate('createdBy', 'email role');
     res.json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -45,7 +48,7 @@ router.get('/user/events', authMiddleware, isCollege, async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const currentUser = getOptionalUser(req);
-    let query = { status: 'approved' };
+    let query = { $or: [{ status: 'approved' }, { status: { $exists: false } }] };
 
     if (currentUser?.role === 'admin') {
       query = {};
@@ -80,7 +83,9 @@ router.get('/:id', async (req, res) => {
       currentUser?.role === 'admin' ||
       (currentUser?.role === 'college' && event.createdBy?._id?.toString() === currentUser.userId);
 
-    if (event.status !== 'approved' && !canViewUnapproved) {
+    const isApprovedOrLegacy = event.status === 'approved' || typeof event.status === 'undefined';
+
+    if (!isApprovedOrLegacy && !canViewUnapproved) {
       return res.status(404).json({ error: 'Event not found' });
     }
 
@@ -156,7 +161,7 @@ router.delete('/:id', authMiddleware, isCollege, async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    if (event.status !== 'approved') {
+    if (event.status && event.status !== 'approved') {
       return res.status(400).json({ error: 'Only approved events can be registered' });
     }
 

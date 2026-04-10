@@ -62,6 +62,19 @@ const seedDatabase = async () => {
       { $set: { image: seedEvent.image } }
     );
   }
+
+  // Backfill moderation fields for older events created before admin workflow existed.
+  await Event.updateMany(
+    { status: { $exists: false } },
+    {
+      $set: {
+        status: 'approved',
+        moderationNote: '',
+        verifiedBy: null,
+        verifiedAt: null,
+      },
+    }
+  );
 };
 
 // Health check endpoint
