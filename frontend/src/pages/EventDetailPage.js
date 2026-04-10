@@ -32,6 +32,7 @@ const EventDetailPage = () => {
   const availableSeats = Math.max(0, event.capacity - event.registered);
   const registrationPercentage = (event.registered / event.capacity) * 100;
   const isCollegeRole = user?.role === 'college';
+  const isStudentRole = user?.role === 'student';
   const bookmarkedByUser = isBookmarked(event.id);
   const registeredByUser = isRegistered(event.id);
   const fallbackImage =
@@ -134,7 +135,7 @@ const EventDetailPage = () => {
             </div>
 
             <div className="event-actions">
-              {!isCollegeRole && (
+              {isStudentRole && (
                 <button
                   className={`btn ${bookmarkedByUser ? 'btn-danger' : 'btn-secondary'}`}
                   onClick={handleBookmarkToggle}
@@ -144,13 +145,13 @@ const EventDetailPage = () => {
                 </button>
               )}
 
-              {(availableSeats > 0 || registeredByUser) && (
+              {isStudentRole && (availableSeats > 0 || registeredByUser) && (
                 <button className="btn btn-success" onClick={handleRegistrationToggle} disabled={actionLoading}>
                   {registeredByUser ? 'Cancel Registration' : 'Register for Event'}
                 </button>
               )}
 
-              {availableSeats <= 0 && !registeredByUser && (
+              {isStudentRole && availableSeats <= 0 && !registeredByUser && (
                 <button className="btn btn-secondary" disabled>
                   Event Full
                 </button>

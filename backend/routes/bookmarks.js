@@ -24,6 +24,10 @@ router.post('/:eventId', authMiddleware, isStudent, async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
+    if (event.status !== 'approved') {
+      return res.status(400).json({ error: 'Only approved events can be bookmarked' });
+    }
+
     let bookmark = await Bookmark.findOne({
       userId: req.userId,
       eventId: req.params.eventId,

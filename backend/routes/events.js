@@ -1,9 +1,25 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const Event = require('../models/Event');
 const Bookmark = require('../models/Bookmark');
 const { authMiddleware, isCollege, isStudent } = require('../middleware/auth');
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'campussphere-dev-secret';
+
+const getOptionalUser = (req) => {
+  const rawAuth = req.headers.authorization;
+  if (!rawAuth || !rawAuth.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = rawAuth.split(' ')[1];
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
+};
 
 // Get registered events for current student
 router.get('/registered', authMiddleware, isStudent, async (req, res) => {
@@ -28,7 +44,20 @@ router.get('/user/events', authMiddleware, isCollege, async (req, res) => {
 // Get all events
 router.get('/', async (req, res) => {
   try {
-    const events = await Event.find().populate('createdBy', 'email role');
+    const currentUser = getOptionalUser(req);
+    let query = { status: 'approved' };
+
+    if (currentUser?.role === 'admin') {
+      query = {};
+    } else if (currentUser?.role === 'college') {
+      query = {
+        $or: [{ status: 'approved' }, { createdBy: currentUser.userId }],
+      };
+    }
+
+    const events = await Event.find(query)
+      .populate('createdBy', 'email role')
+      .populate('verifiedBy', 'email role');
     res.json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -38,10 +67,23 @@ router.get('/', async (req, res) => {
 // Get event by ID
 router.get('/:id', async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate('createdBy', 'email role');
+    const currentUser = getOptionalUser(req);
+    const event = await Event.findById(req.params.id)
+      .populate('createdBy', 'email role')
+      .populate('verifiedBy', 'email role');
+
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
+
+    const canViewUnapproved =
+      currentUser?.role === 'admin' ||
+      (currentUser?.role === 'college' && event.createdBy?._id?.toString() === currentUser.userId);
+
+    if (event.status !== 'approved' && !canViewUnapproved) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
     res.json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -62,13 +104,17 @@ router.post('/', authMiddleware, isCollege, async (req, res) => {
       category,
       capacity,
       image,
+      status: 'pending',
+      moderationNote: '',
+      verifiedBy: null,
+      verifiedAt: null,
       createdBy: req.userId,
     });
 
     await event.save();
     await event.populate('createdBy', 'email role');
 
-    res.status(201).json({ message: 'Event created successfully', event });
+    res.status(201).json({ message: 'Event submitted for admin review', event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -88,9 +134,14 @@ router.put('/:id', authMiddleware, isCollege, async (req, res) => {
     }
 
     Object.assign(event, req.body);
+    event.status = 'pending';
+    event.moderationNote = '';
+    event.verifiedBy = null;
+    event.verifiedAt = null;
     await event.save();
 
-    res.json({ message: 'Event updated successfully', event });
+    await event.populate('createdBy', 'email role');
+    res.json({ message: 'Event updated and submitted for review', event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -103,6 +154,10 @@ router.delete('/:id', authMiddleware, isCollege, async (req, res) => {
 
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
+    }
+
+    if (event.status !== 'approved') {
+      return res.status(400).json({ error: 'Only approved events can be registered' });
     }
 
     if (event.createdBy.toString() !== req.userId) {

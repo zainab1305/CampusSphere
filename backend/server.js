@@ -19,11 +19,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/bookmarks', require('./routes/bookmarks'));
+app.use('/api/admin', require('./routes/admin'));
 
 const seedDatabase = async () => {
-  const userCount = await User.countDocuments();
-  if (userCount === 0) {
-    await User.create(seedUsers);
+  let createdUsers = 0;
+  for (const seedUser of seedUsers) {
+    const existingUser = await User.findOne({ email: seedUser.email });
+    if (existingUser) {
+      continue;
+    }
+
+    await User.create(seedUser);
+    createdUsers += 1;
+  }
+
+  if (createdUsers > 0) {
     console.log('✅ Seeded demo users');
   }
 

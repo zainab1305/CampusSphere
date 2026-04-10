@@ -27,6 +27,10 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
+    if (role === 'admin') {
+      return res.status(403).json({ error: 'Admin account creation is restricted' });
+    }
+
     const user = new User({ email, password, role: role || 'student' });
     await user.save();
 

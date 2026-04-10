@@ -28,6 +28,11 @@ const Navbar = () => {
               Create Event
             </Link>
           )}
+          {user?.role === 'admin' && (
+            <Link to="/admin/moderation" className="navbar-link">
+              Moderation
+            </Link>
+          )}
           {user?.role === 'student' && (
             <Link to="/bookmarks" className="navbar-link">
               My Bookmarks
@@ -38,7 +43,11 @@ const Navbar = () => {
         <div className="navbar-user">
           <span className="navbar-email">{user?.email}</span>
           <span className="navbar-role">
-            {user?.role === 'college' ? '🏫 College' : '👨‍🎓 Student'}
+            {user?.role === 'college'
+              ? '🏫 College'
+              : user?.role === 'admin'
+                ? '🛡️ Admin'
+                : '👨‍🎓 Student'}
           </span>
           <button className="btn btn-danger btn-small" onClick={handleLogout}>
             Logout

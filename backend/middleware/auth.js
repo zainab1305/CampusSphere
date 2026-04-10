@@ -33,8 +33,16 @@ const isStudent = (req, res, next) => {
   next();
 };
 
+const isAdmin = (req, res, next) => {
+  if (req.userRole !== 'admin') {
+    return res.status(403).json({ error: 'Only admins can perform this action' });
+  }
+  next();
+};
+
 module.exports = {
   authMiddleware,
   isCollege,
   isStudent,
+  isAdmin,
 };

@@ -9,6 +9,11 @@ const seedUsers = [
     password: 'password123',
     role: 'college',
   },
+  {
+    email: 'admin@example.com',
+    password: 'password123',
+    role: 'admin',
+  },
 ];
 
 const seedEvents = [

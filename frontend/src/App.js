@@ -12,6 +12,7 @@ import DashboardPage from './pages/DashboardPage';
 import EventDetailPage from './pages/EventDetailPage';
 import CreateEventPage from './pages/CreateEventPage';
 import BookmarkedEventsPage from './pages/BookmarkedEventsPage';
+import AdminModerationPage from './pages/AdminModerationPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Components
@@ -65,6 +66,14 @@ const AppContent = () => {
           element={
             <ProtectedRoute allowedRoles={['student']}>
               <BookmarkedEventsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/moderation"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminModerationPage />
             </ProtectedRoute>
           }
         />

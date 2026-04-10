@@ -6,7 +6,7 @@ import './EventCard.css';
 const EventCard = ({ event, onBookmarkToggle, isBookmarked = false }) => {
   const { user } = useAuth();
   const availableSeats = event.capacity - event.registered;
-  const isCollegeRole = user?.role === 'college';
+  const isStudentRole = user?.role === 'student';
   const fallbackImage =
     'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80';
   const imageSrc = event.image?.trim() ? event.image : fallbackImage;
@@ -54,7 +54,7 @@ const EventCard = ({ event, onBookmarkToggle, isBookmarked = false }) => {
             View Details
           </Link>
 
-          {!isCollegeRole && (
+          {isStudentRole && (
             <button
               className={`btn ${isBookmarked ? 'btn-danger' : 'btn-secondary'} btn-small bookmark-btn`}
               onClick={() => onBookmarkToggle(event.id)}
