@@ -1,4 +1,5 @@
 import React, { createContext, useState, useCallback } from 'react';
+import apiClient, { setApiAuthToken } from '../api/client';
 
 export const AuthContext = createContext();
 
@@ -7,47 +8,56 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const signup = useCallback((email, password, role) => {
+  const signup = useCallback(async (email, password, role) => {
     setLoading(true);
     try {
-      // Mock signup - in Level 3, this will call the backend API
-      const newUser = {
-        id: Date.now().toString(),
+      const { data } = await apiClient.post('/auth/signup', {
         email,
-        role, // 'student' or 'college'
-        createdAt: new Date(),
-      };
-      setUser(newUser);
+        password,
+        role,
+      });
+
+      setApiAuthToken(data.token);
+      setUser(data.user);
       setIsAuthenticated(true);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      return { success: true, message: 'Signup successful!' };
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      return { success: true, message: data.message || 'Signup successful!' };
     } catch (error) {
-      return { success: false, message: 'Signup failed!' };
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Signup failed!',
+      };
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const login = useCallback((email, password) => {
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     try {
-      // Mock login - in Level 3, this will validate against the backend
-      const mockUsers = {
-        'student@example.com': { id: '1', email, role: 'student' },
-        'college@example.com': { id: '2', email, role: 'college' },
-      };
+      const { data } = await apiClient.post('/auth/login', {
+        email,
+        password,
+      });
 
-      const foundUser = mockUsers[email];
-      if (foundUser && password === 'password123') {
-        setUser(foundUser);
-        setIsAuthenticated(true);
-        localStorage.setItem('user', JSON.stringify(foundUser));
-        return { success: true, message: 'Login successful!' };
-      } else {
+      if (!data?.user) {
         return { success: false, message: 'Invalid credentials!' };
       }
+
+      setApiAuthToken(data.token);
+      setUser(data.user);
+      setIsAuthenticated(true);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      return { success: true, message: data.message || 'Login successful!' };
     } catch (error) {
-      return { success: false, message: 'Login failed!' };
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Login failed!',
+      };
     } finally {
       setLoading(false);
     }
@@ -56,11 +66,19 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     setUser(null);
     setIsAuthenticated(false);
+    setApiAuthToken(null);
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
   }, []);
 
   const initializeAuth = useCallback(() => {
+    const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
+
+    if (storedToken) {
+      setApiAuthToken(storedToken);
+    }
+
     if (storedUser) {
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);

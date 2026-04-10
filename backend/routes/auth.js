@@ -2,11 +2,13 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'campussphere-dev-secret';
+
 const router = express.Router();
 
 // Generate JWT token
 const generateToken = (userId, role) => {
-  return jwt.sign({ userId, role }, process.env.JWT_SECRET, {
+  return jwt.sign({ userId, role }, JWT_SECRET, {
     expiresIn: '24h',
   });
 };

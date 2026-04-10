@@ -19,7 +19,7 @@ const LoginPage = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -29,12 +29,10 @@ const LoginPage = () => {
       return;
     }
 
-    const result = login(email, password);
+    const result = await login(email, password);
     if (result.success) {
       setSuccess(result.message);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
+      navigate('/dashboard');
     } else {
       setError(result.message);
     }

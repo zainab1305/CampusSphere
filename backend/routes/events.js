@@ -5,6 +5,26 @@ const { authMiddleware, isCollege, isStudent } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Get registered events for current student
+router.get('/registered', authMiddleware, isStudent, async (req, res) => {
+  try {
+    const events = await Event.find({ attendees: req.userId }).populate('createdBy', 'email role');
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user's created events
+router.get('/user/events', authMiddleware, isCollege, async (req, res) => {
+  try {
+    const events = await Event.find({ createdBy: req.userId }).populate('createdBy', 'email role');
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all events
 router.get('/', async (req, res) => {
   try {
@@ -98,11 +118,57 @@ router.delete('/:id', authMiddleware, isCollege, async (req, res) => {
   }
 });
 
-// Get user's events
-router.get('/user/events', authMiddleware, isCollege, async (req, res) => {
+// Register for an event
+router.post('/:id/register', authMiddleware, isStudent, async (req, res) => {
   try {
-    const events = await Event.find({ createdBy: req.userId });
-    res.json(events);
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    if (event.attendees.some((attendeeId) => attendeeId.toString() === req.userId)) {
+      return res.status(400).json({ error: 'You are already registered for this event' });
+    }
+
+    if (event.registered >= event.capacity) {
+      return res.status(400).json({ error: 'Event is full' });
+    }
+
+    event.attendees.push(req.userId);
+    event.registered += 1;
+    await event.save();
+
+    await event.populate('createdBy', 'email role');
+    res.json({ message: 'Registration successful', event });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cancel a registration
+router.delete('/:id/register', authMiddleware, isStudent, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    const attendeeIndex = event.attendees.findIndex(
+      (attendeeId) => attendeeId.toString() === req.userId
+    );
+
+    if (attendeeIndex === -1) {
+      return res.status(400).json({ error: 'You are not registered for this event' });
+    }
+
+    event.attendees.splice(attendeeIndex, 1);
+    event.registered = Math.max(0, event.registered - 1);
+    await event.save();
+
+    await event.populate('createdBy', 'email role');
+    res.json({ message: 'Registration cancelled', event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -31,7 +31,7 @@ router.post('/:eventId', authMiddleware, isStudent, async (req, res) => {
 
     if (bookmark) {
       await Bookmark.deleteOne({ _id: bookmark._id });
-      return res.json({ message: 'Bookmark removed' });
+      return res.json({ message: 'Bookmark removed', bookmarked: false });
     }
 
     bookmark = new Bookmark({
@@ -40,7 +40,7 @@ router.post('/:eventId', authMiddleware, isStudent, async (req, res) => {
     });
 
     await bookmark.save();
-    res.status(201).json({ message: 'Event bookmarked', bookmark });
+    res.status(201).json({ message: 'Event bookmarked', bookmark, bookmarked: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

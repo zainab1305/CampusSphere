@@ -47,19 +47,17 @@ const SignupPage = () => {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    const result = signup(email, password, role);
+    const result = await signup(email, password, role);
     if (result.success) {
       setSuccess(result.message);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
+      navigate('/dashboard');
     } else {
       setError(result.message);
     }

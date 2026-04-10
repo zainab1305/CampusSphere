@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useContext';
 import { useEvents } from '../hooks/useContext';
 import EventForm from '../components/EventForm';
@@ -7,8 +7,10 @@ import './CreateEventPage.css';
 
 const CreateEventPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
-  const { createEvent } = useEvents();
+  const { createEvent, updateEvent } = useEvents();
+  const editingEvent = location.state?.event || null;
 
   // Restrict access to college role only
   if (user?.role !== 'college') {
@@ -28,14 +30,18 @@ const CreateEventPage = () => {
     );
   }
 
-  const handleFormSubmit = (eventData) => {
-    const result = createEvent({
+  const handleFormSubmit = async (eventData) => {
+    const payload = {
       ...eventData,
-      registered: 0,
-    });
+      registered: editingEvent?.registered || 0,
+    };
+
+    const result = editingEvent
+      ? await updateEvent(editingEvent.id, payload)
+      : await createEvent(payload);
 
     if (result.success) {
-      alert('Event created successfully! 🎉');
+      alert(editingEvent ? 'Event updated successfully! 🎉' : 'Event created successfully! 🎉');
       navigate('/dashboard');
     }
   };
@@ -47,7 +53,13 @@ const CreateEventPage = () => {
   return (
     <div className="create-event-page">
       <div className="container">
-        <EventForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
+        <EventForm
+          onSubmit={handleFormSubmit}
+          onCancel={handleCancel}
+          initialValues={editingEvent || {}}
+          title={editingEvent ? 'Edit Event' : 'Create New Event'}
+          submitLabel={editingEvent ? 'Update Event' : 'Create Event'}
+        />
       </div>
     </div>
   );

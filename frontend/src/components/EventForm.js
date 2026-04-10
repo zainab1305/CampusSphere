@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './EventForm.css';
 
-const EventForm = ({ onSubmit, onCancel, initialValues = {} }) => {
+const EventForm = ({ onSubmit, onCancel, initialValues = {}, title = 'Create New Event', submitLabel = 'Create Event' }) => {
   const [formData, setFormData] = useState({
     title: initialValues.title || '',
     description: initialValues.description || '',
@@ -54,7 +54,7 @@ const EventForm = ({ onSubmit, onCancel, initialValues = {} }) => {
 
   return (
     <div className="event-form-container">
-      <h2 className="form-title">Create New Event</h2>
+      <h2 className="form-title">{title}</h2>
       <form className="event-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label className="form-label">Event Title *</label>
@@ -161,7 +161,7 @@ const EventForm = ({ onSubmit, onCancel, initialValues = {} }) => {
 
         <div className="form-actions">
           <button type="submit" className="btn btn-success">
-            Create Event
+            {submitLabel}
           </button>
           <button type="button" className="btn btn-secondary" onClick={onCancel}>
             Cancel

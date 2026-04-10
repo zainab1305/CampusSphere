@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useContext';
 import { useEvents } from '../hooks/useContext';
@@ -8,7 +8,8 @@ const EventDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getEventById, toggleBookmark, isBookmarked } = useEvents();
+  const { getEventById, toggleBookmark, isBookmarked, isRegistered, toggleRegistration, deleteEvent } = useEvents();
+  const [actionLoading, setActionLoading] = useState(false);
 
   const event = getEventById(id);
 
@@ -28,10 +29,53 @@ const EventDetailPage = () => {
     );
   }
 
-  const availableSeats = event.capacity - event.registered;
+  const availableSeats = Math.max(0, event.capacity - event.registered);
   const registrationPercentage = (event.registered / event.capacity) * 100;
   const isCollegeRole = user?.role === 'college';
   const bookmarkedByUser = isBookmarked(event.id);
+  const registeredByUser = isRegistered(event.id);
+
+  const handleBookmarkToggle = async () => {
+    setActionLoading(true);
+    const result = await toggleBookmark(event.id);
+    setActionLoading(false);
+
+    if (!result.success) {
+      alert(result.message);
+    }
+  };
+
+  const handleRegistrationToggle = async () => {
+    setActionLoading(true);
+    const result = await toggleRegistration(event.id);
+    setActionLoading(false);
+
+    if (!result.success) {
+      alert(result.message);
+    }
+  };
+
+  const handleEditEvent = () => {
+    navigate('/create-event', { state: { event } });
+  };
+
+  const handleDeleteEvent = async () => {
+    const shouldDelete = window.confirm('Delete this event permanently?');
+    if (!shouldDelete) {
+      return;
+    }
+
+    setActionLoading(true);
+    const result = await deleteEvent(event.id);
+    setActionLoading(false);
+
+    if (result.success) {
+      navigate('/dashboard');
+      return;
+    }
+
+    alert(result.message);
+  };
 
   return (
     <div className="event-detail-page">
@@ -90,24 +134,35 @@ const EventDetailPage = () => {
               {!isCollegeRole && (
                 <button
                   className={`btn ${bookmarkedByUser ? 'btn-danger' : 'btn-secondary'}`}
-                  onClick={() => toggleBookmark(event.id)}
+                  onClick={handleBookmarkToggle}
+                  disabled={actionLoading}
                 >
                   {bookmarkedByUser ? '❌ Remove Bookmark' : '⭐ Add to Bookmarks'}
                 </button>
               )}
 
-              {availableSeats > 0 && (
-                <button className="btn btn-success">Register for Event</button>
+              {(availableSeats > 0 || registeredByUser) && (
+                <button className="btn btn-success" onClick={handleRegistrationToggle} disabled={actionLoading}>
+                  {registeredByUser ? 'Cancel Registration' : 'Register for Event'}
+                </button>
               )}
 
-              {availableSeats <= 0 && <button className="btn btn-secondary" disabled>Event Full</button>}
+              {availableSeats <= 0 && !registeredByUser && (
+                <button className="btn btn-secondary" disabled>
+                  Event Full
+                </button>
+              )}
             </div>
 
             {isCollegeRole && (
               <div className="college-actions">
                 <p className="info-text">You are the event organizer</p>
-                <button className="btn btn-secondary">Edit Event</button>
-                <button className="btn btn-danger">Delete Event</button>
+                <button className="btn btn-secondary" onClick={handleEditEvent} disabled={actionLoading}>
+                  Edit Event
+                </button>
+                <button className="btn btn-danger" onClick={handleDeleteEvent} disabled={actionLoading}>
+                  Delete Event
+                </button>
               </div>
             )}
           </div>
