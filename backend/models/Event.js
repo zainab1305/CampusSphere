@@ -40,7 +40,7 @@ const eventSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default: 'https://via.placeholder.com/400x200?text=Event',
+      default: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

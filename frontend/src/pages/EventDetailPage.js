@@ -34,6 +34,9 @@ const EventDetailPage = () => {
   const isCollegeRole = user?.role === 'college';
   const bookmarkedByUser = isBookmarked(event.id);
   const registeredByUser = isRegistered(event.id);
+  const fallbackImage =
+    'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80';
+  const imageSrc = event.image?.trim() ? event.image : fallbackImage;
 
   const handleBookmarkToggle = async () => {
     setActionLoading(true);
@@ -86,7 +89,7 @@ const EventDetailPage = () => {
 
         <div className="event-detail-container">
           <div className="event-detail-image">
-            <img src={event.image} alt={event.title} />
+            <img src={imageSrc} alt={event.title} onError={(e) => { e.currentTarget.src = fallbackImage; }} />
             <span className={`event-badge ${event.category.toLowerCase()}`}>{event.category}</span>
           </div>
 

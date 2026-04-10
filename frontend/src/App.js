@@ -15,12 +15,7 @@ import NotFoundPage from './pages/NotFoundPage';
 
 // Components
 import Navbar from './components/Navbar';
-
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Main App Component
 const AppContent = () => {
@@ -58,7 +53,7 @@ const AppContent = () => {
         <Route
           path="/create-event"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['college']}>
               <CreateEventPage />
             </ProtectedRoute>
           }
@@ -66,7 +61,7 @@ const AppContent = () => {
         <Route
           path="/bookmarks"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['student']}>
               <BookmarkedEventsPage />
             </ProtectedRoute>
           }

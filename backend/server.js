@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const connectDB = require('./config/database');
@@ -56,19 +57,66 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
+let server;
+let isShuttingDown = false;
+
+const shutdown = async (signal, onComplete) => {
+  if (isShuttingDown) {
+    if (onComplete) {
+      onComplete();
+    }
+    return;
+  }
+
+  isShuttingDown = true;
+  console.log(`🔄 Received ${signal}. Shutting down gracefully...`);
+
+  try {
+    if (server) {
+      await new Promise((resolve) => {
+        server.close(() => resolve());
+      });
+    }
+
+    await mongoose.connection.close();
+    console.log('✅ Server shutdown complete');
+  } catch (error) {
+    console.error('❌ Error during shutdown:', error);
+  } finally {
+    if (onComplete) {
+      onComplete();
+      return;
+    }
+
+    process.exit(0);
+  }
+};
 
 const startServer = async () => {
   try {
     await connectDB();
     await seedDatabase();
 
-    app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`✅ CampusSphere Backend running on port ${PORT}`);
+    });
+
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use. Stop the existing process and try again.`);
+      } else {
+        console.error('❌ Server error:', error);
+      }
+      process.exit(1);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 };
+
+process.once('SIGUSR2', () => shutdown('SIGUSR2', () => process.kill(process.pid, 'SIGUSR2')));
+process.once('SIGINT', () => shutdown('SIGINT'));
+process.once('SIGTERM', () => shutdown('SIGTERM'));
 
 startServer();

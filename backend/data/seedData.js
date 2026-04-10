@@ -22,7 +22,7 @@ const seedEvents = [
     category: 'Conference',
     capacity: 500,
     registered: 234,
-    image: 'https://via.placeholder.com/400x200?text=Tech+Conference',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'Web Development Workshop',
@@ -33,7 +33,7 @@ const seedEvents = [
     category: 'Workshop',
     capacity: 50,
     registered: 42,
-    image: 'https://via.placeholder.com/400x200?text=Web+Dev+Workshop',
+    image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'Data Science Seminar',
@@ -44,7 +44,7 @@ const seedEvents = [
     category: 'Seminar',
     capacity: 300,
     registered: 187,
-    image: 'https://via.placeholder.com/400x200?text=Data+Science',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'Annual Sports Day',
@@ -55,7 +55,7 @@ const seedEvents = [
     category: 'Sports',
     capacity: 1000,
     registered: 756,
-    image: 'https://via.placeholder.com/400x200?text=Sports+Day',
+    image: 'https://aquaimagicaa.com/indore/wp-content/uploads/Aqua-Indore.jpg',
   },
   {
     title: 'Artificial Intelligence Expo',
@@ -66,7 +66,7 @@ const seedEvents = [
     category: 'Expo',
     capacity: 800,
     registered: 432,
-    image: 'https://via.placeholder.com/400x200?text=AI+Expo',
+    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 

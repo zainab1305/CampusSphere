@@ -1,12 +1,11 @@
 import React, { createContext, useState, useCallback, useEffect, useContext } from 'react';
-import { mockEvents } from '../data/mockData';
 import apiClient from '../api/client';
 import { AuthContext } from './AuthContext';
 
 export const EventContext = createContext();
 
 export const EventProvider = ({ children }) => {
-  const [events, setEvents] = useState(mockEvents);
+  const [events, setEvents] = useState([]);
   const [bookmarks, setBookmarks] = useState([]);
   const [registeredEventIds, setRegisteredEventIds] = useState([]);
   const { user, isAuthenticated } = useContext(AuthContext);
@@ -45,8 +44,8 @@ export const EventProvider = ({ children }) => {
       syncEvents(data);
       return data;
     } catch (error) {
-      setEvents(mockEvents);
-      return mockEvents;
+      setEvents([]);
+      return [];
     }
   }, [syncEvents]);
 
@@ -87,14 +86,7 @@ export const EventProvider = ({ children }) => {
         setEvents((prev) => [...prev.filter((event) => event.id !== createdEvent.id), createdEvent]);
         return { success: true, event: createdEvent };
       } catch (error) {
-        const newEvent = {
-          id: Date.now().toString(),
-          ...eventData,
-          registered: 0,
-          createdAt: new Date().toISOString(),
-        };
-        setEvents((prev) => [...prev, newEvent]);
-        return { success: true, event: newEvent, fallback: true };
+        return { success: false, message: error.response?.data?.error || 'Failed to create event' };
       }
     },
     [normalizeEvent]

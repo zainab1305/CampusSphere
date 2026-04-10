@@ -7,11 +7,14 @@ const EventCard = ({ event, onBookmarkToggle, isBookmarked = false }) => {
   const { user } = useAuth();
   const availableSeats = event.capacity - event.registered;
   const isCollegeRole = user?.role === 'college';
+  const fallbackImage =
+    'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80';
+  const imageSrc = event.image?.trim() ? event.image : fallbackImage;
 
   return (
     <div className="event-card">
       <div className="event-image">
-        <img src={event.image} alt={event.title} />
+        <img src={imageSrc} alt={event.title} onError={(e) => { e.currentTarget.src = fallbackImage; }} />
         <span className={`event-badge ${event.category.toLowerCase()}`}>{event.category}</span>
       </div>
 

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import './EventForm.css';
 
 const EventForm = ({ onSubmit, onCancel, initialValues = {}, title = 'Create New Event', submitLabel = 'Create Event' }) => {
+  const defaultEventImage =
+    'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80';
+
   const [formData, setFormData] = useState({
     title: initialValues.title || '',
     description: initialValues.description || '',
@@ -10,7 +13,7 @@ const EventForm = ({ onSubmit, onCancel, initialValues = {}, title = 'Create New
     location: initialValues.location || '',
     category: initialValues.category || 'Conference',
     capacity: initialValues.capacity || '',
-    image: initialValues.image || 'https://via.placeholder.com/400x200?text=Event',
+    image: initialValues.image || defaultEventImage,
   });
 
   const [errors, setErrors] = useState({});

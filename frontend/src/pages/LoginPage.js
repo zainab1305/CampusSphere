@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useContext';
-import { mockCredentials } from '../data/mockData';
 import './AuthPages.css';
 
 const LoginPage = () => {
@@ -36,18 +35,6 @@ const LoginPage = () => {
     } else {
       setError(result.message);
     }
-  };
-
-  const fillStudentCredentials = () => {
-    setEmail(mockCredentials.student.email);
-    setPassword(mockCredentials.student.password);
-    setError('');
-  };
-
-  const fillCollegeCredentials = () => {
-    setEmail(mockCredentials.college.email);
-    setPassword(mockCredentials.college.password);
-    setError('');
   };
 
   return (
@@ -92,20 +79,6 @@ const LoginPage = () => {
               Sign In
             </button>
           </form>
-
-          <div className="demo-credentials">
-            <p className="demo-label">📌 Demo Credentials (for testing):</p>
-            <div className="credentials-row">
-              <button type="button" className="btn btn-secondary btn-small" onClick={fillStudentCredentials}>
-                👨‍🎓 Student Demo
-              </button>
-              <button type="button" className="btn btn-secondary btn-small" onClick={fillCollegeCredentials}>
-                🏫 College Demo
-              </button>
-            </div>
-            <p className="demo-info">Password: password123</p>
-          </div>
-
           <div className="auth-footer">
             <p>
               Don't have an account?{' '}
