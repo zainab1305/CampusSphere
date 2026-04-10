@@ -1,374 +1,243 @@
-# 🎓 CampusSphere - Academic Event Management Platform
+﻿# CampusSphere (UAIP)
 
-> A scalable, full-stack web application for managing academic events with role-based access, user authentication, and event management capabilities.
+CampusSphere is a full-stack Unified Academic Interaction Platform (UAIP) that centralizes verified academic opportunities across three roles: `admin`, `college`, and `student`.
 
-[![React](https://img.shields.io/badge/React-18.2.0-blue?logo=react)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-Express-green?logo=node.js)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-7.5.0-green?logo=mongodb)](https://www.mongodb.com/)
-[![License](https://img.shields.io/badge/License-Educational-yellow)](#)
+## Project Synopsis Alignment
 
-## 📌 Quick Links
+### Core vision
+Single source of truth for academic opportunities so students do not miss important events.
 
-- 🚀 **[Quick Start Guide](QUICK_START.md)** - Get running in 2 minutes
-- 📖 **[Setup Guide](SETUP_GUIDE.md)** - Detailed installation & configuration
-- ✅ **[Implementation Checklist](IMPLEMENTATION_CHECKLIST.md)** - Feature tracking
-- 🎯 **[Demo Credentials](#demo-credentials)** - Test the app
+### Three-role model
+1. Admin: verifies and moderates event submissions.
+2. College: publishes and manages event submissions.
+3. Student: consumes approved content, bookmarks events, and registers.
 
----
+### MVP capabilities implemented
+1. Centralized event management.
+2. Role-based dashboards and routes.
+3. Bookmark and tracking system.
+4. Approval workflow for content visibility.
+5. Responsive UI with reusable components.
 
-## 🎯 Project Levels
+## Tech Stack
 
-This project implements all three levels with progressive enhancement:
+1. Frontend: React 18, React Router 6, Axios, Context API, CSS.
+2. Backend: Node.js, Express, JWT, bcryptjs.
+3. Database: MongoDB with Mongoose.
 
-### Level 1: Basic ✅ COMPLETE
-- User signup and login system with role selection
-- Dashboard displaying academic events
-- Static event listing with clean UI
-- Working navigation and protected routes
-- **Current Status:** Fully functional with mock data
+## Current Architecture
 
-### Level 2: Intermediate ✅ COMPLETE
-- Role-based access control (Student vs College)
-- Student features: Browse, search, filter, and bookmark events
-- College features: Create and manage events
-- Event search and category filtering
-- **Current Status:** All features working with Context API state
-
-### Level 3: Advanced ✅ PRODUCTION-READY
-- Complete REST API backend (Node.js + Express)
-- MongoDB database integration with Mongoose
-- JWT-based authentication and authorization
-- Scalable architecture with clean separation of concerns
-- **Current Status:** API structure complete, ready for integration
-
----
-
-## 🛠️ Tech Stack
-
-<table>
-<tr>
-<td><strong>Frontend</strong></td>
-<td>React.js 18+ • React Router 6 • Context API • CSS Modules</td>
-</tr>
-<tr>
-<td><strong>Backend</strong></td>
-<td>Node.js • Express.js • jwt • bcryptjs</td>
-</tr>
-<tr>
-<td><strong>Database</strong></td>
-<td>MongoDB • Mongoose (Level 3) • Mock Data (Level 1-2)</td>
-</tr>
-<tr>
-<td><strong>State Management</strong></td>
-<td>React Context API with Hooks</td>
-</tr>
-</table>
-
----
-
-## 🚀 Getting Started
-
-### ⚡ Fastest Option (Frontend Only - 30 seconds)
-
-```bash
-cd frontend
-npm install
-npm start
+```text
+frontend (React)
+  -> calls backend REST APIs via Axios
+backend (Express)
+  -> applies auth + role middleware
+  -> reads/writes MongoDB via Mongoose
 ```
 
-Visit `http://localhost:3000` and use demo credentials:
-- **Student:** `student@example.com` / `password123`
-- **College:** `college@example.com` / `password123`
+## Roles and Behavior
 
-### 🔧 Full Stack Setup (With Backend)
+### Student
+1. View approved events.
+2. Search and filter events.
+3. Bookmark approved events.
+4. Register/cancel registration for approved events.
 
-**Terminal 1: Backend**
+### College
+1. Create events.
+2. Update/delete own events.
+3. Newly created or updated events go to `pending` for admin review.
+4. College can still view its own pending/rejected submissions.
+
+### Admin
+1. View moderation queue (`pending` events).
+2. Approve or reject college submissions.
+3. Rejected events become unavailable to students.
+
+## Event Verification Flow
+
+1. College submits event.
+2. Event status = `pending`.
+3. Admin approves or rejects.
+4. Only `approved` events are visible/interactive for students.
+
+## Routes (Frontend)
+
+1. `/` landing page.
+2. `/login` login page.
+3. `/signup` signup page.
+4. `/dashboard` authenticated dashboard.
+5. `/event/:id` event details.
+6. `/create-event` college-only event form.
+7. `/bookmarks` student-only bookmarks.
+8. `/admin/moderation` admin-only moderation panel.
+
+## API Endpoints (Backend)
+
+Base URL: `http://localhost:5000/api`
+
+### Auth
+1. `POST /auth/signup` create user account (`student` or `college` only).
+2. `POST /auth/login` login.
+
+### Events
+1. `GET /events` event list with role-aware visibility.
+2. `GET /events/:id` event details with role-aware visibility.
+3. `POST /events` college creates event (`pending`).
+4. `PUT /events/:id` college updates own event (`pending` again).
+5. `DELETE /events/:id` college deletes own event.
+6. `GET /events/user/events` college gets own events.
+7. `GET /events/registered` student gets registered events.
+8. `POST /events/:id/register` student registers (approved only).
+9. `DELETE /events/:id/register` student cancels registration.
+
+### Bookmarks
+1. `GET /bookmarks` student bookmarks.
+2. `POST /bookmarks/:eventId` student toggle bookmark (approved only).
+3. `DELETE /bookmarks/:eventId` student remove bookmark.
+
+### Admin Moderation
+1. `GET /admin/events/pending` admin pending queue.
+2. `GET /admin/events?status=pending|approved|rejected` admin event list by state.
+3. `PATCH /admin/events/:id/status` admin approve/reject.
+
+## Demo Credentials
+
+1. Student
+   - Email: `student@example.com`
+   - Password: `password123`
+2. College
+   - Email: `college@example.com`
+   - Password: `password123`
+3. Admin
+   - Email: `admin@example.com`
+   - Password: `password123`
+
+Note: admin signup is intentionally blocked from public signup.
+
+## Setup Instructions
+
+### Prerequisites
+1. Node.js 18+ recommended.
+2. MongoDB URI (Atlas or local).
+
+### 1) Backend
+
 ```bash
 cd backend
 npm install
-cp .env.example .env
-# Edit .env with your MongoDB connection
+```
+
+Create `backend/.env`:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+```
+
+Run backend:
+
+```bash
 npm run dev
 ```
 
-**Terminal 2: Frontend**
+Notes:
+1. `npm run dev` runs a pre-script (`scripts/free-port.js`) that frees port 5000 before nodemon starts.
+2. Seed users/events are created if missing.
+
+### 2) Frontend
+
 ```bash
 cd frontend
 npm install
+```
+
+Create `frontend/.env`:
+
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_ENV=development
+```
+
+Run frontend:
+
+```bash
 npm start
 ```
 
----
+Open:
+1. `http://localhost:3000/` (landing page)
+2. Then login/signup.
 
-## 📁 Project Structure
+## Project Structure
 
-```
+```text
 CampusSphere/
-├── frontend/                     # React Application (Core)
-│   ├── public/
-│   │   └── index.html
-│   ├── src/
-│   │   ├── components/          # Reusable UI Components
-│   │   │   ├── Navbar.js        # Navigation bar with logout
-│   │   │   ├── EventCard.js     # Event display card
-│   │   │   ├── EventForm.js     # Event creation form
-│   │   │   ├── Navbar.css
-│   │   │   ├── EventCard.css
-│   │   │   └── EventForm.css
-│   │   ├── pages/               # Route-based Pages
-│   │   │   ├── LoginPage.js     # User login
-│   │   │   ├── SignupPage.js    # User registration
-│   │   │   ├── DashboardPage.js # Main event listing
-│   │   │   ├── EventDetailPage.js # Event details
-│   │   │   ├── CreateEventPage.js # Create events (College)
-│   │   │   ├── BookmarkedEventsPage.js # Student bookmarks
-│   │   │   ├── NotFoundPage.js  # 404 page
-│   │   │   └── AuthPages.css
-│   │   ├── context/             # State Management
-│   │   │   ├── AuthContext.js   # Authentication state
-│   │   │   └── EventContext.js  # Events & bookmarks state
-│   │   ├── hooks/               # Custom React Hooks
-│   │   │   └── useContext.js    # Auth & Events hooks
-│   │   ├── data/
-│   │   │   └── mockData.js      # Sample events & credentials
-│   │   ├── styles/
-│   │   │   └── index.css        # Global styles
-│   │   ├── App.js               # Main app with routing
-│   │   └── index.js             # React entry point
-│   ├── package.json
-│   └── .env.example
-│
-├── backend/                      # Express API (Level 3)
-│   ├── models/                  # MongoDB Schemas
-│   │   ├── User.js              # User model + auth
-│   │   ├── Event.js             # Event model
-│   │   └── Bookmark.js          # Bookmark model
-│   ├── routes/                  # RESTful API Routes
-│   │   ├── auth.js              # /api/auth endpoints
-│   │   ├── events.js            # /api/events endpoints
-│   │   └── bookmarks.js         # /api/bookmarks endpoints
-│   ├── middleware/
-│   │   └── auth.js              # JWT & role validation
-│   ├── config/
-│   │   └── database.js          # MongoDB connection
-│   ├── server.js                # Express server setup
-│   ├── package.json
-│   └── .env.example
-│
-├── README.md                    # This file
-├── QUICK_START.md              # Command reference
-├── SETUP_GUIDE.md              # Detailed setup
-├── IMPLEMENTATION_CHECKLIST.md  # Feature tracking
-└── .gitignore
+  backend/
+    config/
+    data/
+    middleware/
+    models/
+    routes/
+    scripts/
+    server.js
+  frontend/
+    public/
+    src/
+      api/
+      components/
+      context/
+      hooks/
+      pages/
+      styles/
+      App.js
 ```
 
----
+## Key Implementation Notes
 
-## ✨ Key Features
+1. Frontend is API-driven (no mock event source).
+2. Auth token is stored in localStorage and attached via Axios default header.
+3. Protected routes enforce login and role checks on frontend.
+4. Backend enforces role checks server-side for security.
+5. Event moderation status is persisted on event documents.
 
-### 🔐 Authentication System
-- Secure signup with email validation
-- Login with demo credentials for testing
-- Role-based access (Student / College)
-- Protected routes with automatic redirects
-- LocalStorage persistence
+## Requirement Check
 
-### 📚 Event Management
-- **Students:** Browse, search, filter, bookmark events
-- **Colleges:** Create and manage events
-- Event details with capacity tracking
-- Seat availability indicators
-- Category-based filtering
+### Implemented
+1. Centralized event platform.
+2. Three-role model (`admin`, `college`, `student`).
+3. Verification/moderation path (`college -> admin -> student visibility`).
+4. Bookmark + registration tracking.
+5. Role-based route protection.
+6. Responsive and themed UI with reusable components (`Navbar`, `EventCard`, `ProtectedRoute`).
 
-### 🎨 User Interface
-- Modern, responsive design
-- Gradient backgrounds and smooth animations
-- Mobile-first approach
-- Accessible navigation
-- Real-time search and filtering
+### Not in scope yet (future enhancement)
+1. Live socket push updates (current behavior is API refresh-based).
+2. Advanced analytics and AI recommendation features.
+3. Automated test suite.
 
-### 🏗️ Architecture
-- Clean component structure
-- Centralized state management
-- Separation of concerns (Frontend/Backend)
-- Scalable API design (Level 3)
-- Role-based authorization
+## Troubleshooting
 
----
+1. `Port 5000 is already in use`:
+   - Backend `npm run dev` already attempts to free it automatically.
+2. `MongoDB connection failed`:
+   - Verify `MONGODB_URI` in `backend/.env`.
+3. `401/403 from API`:
+   - Re-login and confirm correct role for the route/action.
+4. Admin login fails:
+   - Ensure seed ran successfully and user exists in DB.
 
-## 📊 Features by Role
-
-### 👨‍🎓 Student Role
-- ✅ View all academic events
-- ✅ Search events by title
-- ✅ Filter events by category
-- ✅ View event details and seat availability
-- ✅ Bookmark favorite events
-- ✅ View bookmarked events
-- ✅ Logout
-
-### 🏫 College Role
-- ✅ View all events dashboard
-- ✅ Create new events with full details
-- ✅ Set event capacity and date
-- ✅ Manage event visibility
-- ✅ Track attendee registration
-- ✅ Delete events
-- ✅ Logout
-
----
-
-## 🔓 Demo Credentials
-
-**Student Account:**
-```
-Email:    student@example.com
-Password: password123
-```
-
-**College Account:**
-```
-Email:    college@example.com
-Password: password123
-```
-
-Use the quick login buttons on the login page for instant access!
-
----
-
-## 📖 Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [README.md](README.md) | Project overview & features |
-| [QUICK_START.md](QUICK_START.md) | Command reference & quick setup |
-| [SETUP_GUIDE.md](SETUP_GUIDE.md) | Detailed installation & development guide |
-| [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) | Feature tracking & TODO items |
-
----
-
-## 🎓 Learning Outcomes
-
-Building this project teaches:
-
-**Frontend Development:**
-- React fundamentals and hooks
-- Component composition and reusability
-- Context API for state management
-- React Router for navigation
-- Responsive CSS design
-- Form handling and validation
-
-**Backend Development (Level 3):**
-- Express.js server setup
-- MongoDB and Mongoose ODM
-- RESTful API design
-- JWT authentication
-- Password hashing with bcryptjs
-- Role-based access control
-
-**Full-Stack Concepts:**
-- Client-server communication
-- Database design
-- Authentication & authorization
-- Scalable architecture
-- Separation of concerns
-
----
-
-## 🚀 Deployment
-
-### Frontend
-```bash
-npm run build
-# Deploy 'build' folder to Vercel/Netlify
-```
+## Scripts
 
 ### Backend
-```bash
-# Deploy to Heroku/Railway
-# Set environment variables on platform
-git push heroku main
-```
+1. `npm run dev` -> free port + nodemon server.
+2. `npm start` -> node server.
 
----
+### Frontend
+1. `npm start` -> react dev server.
+2. `npm run build` -> production build.
 
-## 📝 API Endpoints (Level 3)
+## License
 
-```
-Authentication:
-  POST   /api/auth/signup        Register user
-  POST   /api/auth/login         Login user
-
-Events:
-  GET    /api/events             Get all events
-  GET    /api/events/:id         Get event details
-  POST   /api/events             Create event [College]
-  PUT    /api/events/:id         Update event [College]
-  DELETE /api/events/:id         Delete event [College]
-
-Bookmarks:
-  GET    /api/bookmarks          Get bookmarks [Student]
-  POST   /api/bookmarks/:id      Toggle bookmark [Student]
-  DELETE /api/bookmarks/:id      Remove bookmark [Student]
-```
-
----
-
-## 🤝 Contributing
-
-This is an educational project. Improvements and enhancements are welcome!
-
-**Areas for contribution:**
-- Additional event filters
-- User profile page
-- Event rating system
-- Email notifications
-- Admin dashboard
-- Test suite
-
----
-
-## 📞 Support
-
-### Troubleshooting
-
-| Problem | Solution |
-|---------|----------|
-| Port already in use | Change port or kill process on port |
-| MongoDB connection failed | Start MongoDB or check connection string |
-| npm modules not found | Run `npm install` in the directory |
-| CORS errors | Verify backend is running on port 5000 |
-
-For detailed troubleshooting, see [SETUP_GUIDE.md](SETUP_GUIDE.md)
-
----
-
-## 📄 License
-
-Educational Project - April 2026
-
----
-
-## 👨‍💼 Author
-
-**Zainab**  
-Interview Assignment - CampusSphere Project  
-April 2026
-
----
-
-## 🌟 Status
-
-| Component | Status | Details |
-|-----------|--------|---------|
-| Frontend | ✅ Complete | All features working with mock data |
-| Backend | ✅ Structure | Models & routes ready, needs API integration |
-| Testing | 🔄 Pending | Ready for implementation |
-| Docs | ✅ Complete | Full setup and implementation guides |
-
-**Overall:** 80% Complete - Ready for use and enhancement!
-
----
-
-**🚀 Ready to get started? → [Quick Start Guide](QUICK_START.md)**
+Educational / assessment project.
